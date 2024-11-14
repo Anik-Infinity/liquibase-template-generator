@@ -1,0 +1,94 @@
+#!/usr/bin/java --source 21
+
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Scanner;
+
+public class LiquibaseHelper {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Liquibase Timestamp Helper - Type 'help' for commands or 'exit' to quit");
+
+        while (true) {
+            System.out.print("Command> ");
+            String input = scanner.nextLine().trim().toLowerCase();
+
+            switch (input) {
+                case "timestamp" -> {
+                    String[] timestamps = generateTimestamps();
+                    System.out.println("Filename timestamp: " + timestamps[0]);
+                    System.out.println("Changeset ID timestamp: " + timestamps[1]);
+                }
+                case "generate" -> {
+                    System.out.print("Enter change description: ");
+                    String description = scanner.nextLine().trim();
+                    System.out.print("Enter author name: ");
+                    String author = scanner.nextLine().trim();
+                    
+                    var template = createChangeFileTemplate(description, author);
+                    System.out.println("\nGenerated filename: " + template.filename());
+                    System.out.println("Generated changeset ID: " + template.changesetId());
+                    System.out.println("\nXML Content:");
+                    System.out.println(template.xmlContent());
+                }
+                case "help" -> System.out.println("""
+                    Available commands:
+                    - timestamp: Generate UTC timestamps for filename and changeset ID
+                    - generate: Create a complete Liquibase change file template
+                    - help: Show this help message
+                    - exit: Exit the program
+                    """);
+                case "exit" -> {
+                    System.out.println("Goodbye!");
+                    return;
+                }
+                default -> System.out.println("Unknown command. Type 'help' for available commands.");
+            }
+        }
+    }
+
+    private static String[] generateTimestamps() {
+        Instant now = Instant.now();
+        
+        DateTimeFormatter filenameFormatter = DateTimeFormatter
+            .ofPattern("yyyyMMddHHmmss")
+            .withZone(ZoneOffset.UTC);
+        
+        DateTimeFormatter changesetFormatter = DateTimeFormatter
+            .ofPattern("yyyy-MM-dd HH:mm:ss")
+            .withZone(ZoneOffset.UTC);
+        
+        return new String[]{
+            filenameFormatter.format(now),
+            changesetFormatter.format(now)
+        };
+    }
+
+    private static ChangeTemplate createChangeFileTemplate(String description, String author) {
+        String[] timestamps = generateTimestamps();
+        String normalizedDesc = description.toLowerCase().replace(' ', '_');
+        
+        String filename = String.format("V%s__%s.xml", timestamps[0], normalizedDesc);
+        String changesetId = String.format("%s_%s", timestamps[1], normalizedDesc);
+        
+        String xmlTemplate = String.format("""
+            <?xml version="1.0" encoding="UTF-8"?>
+            <databaseChangeLog
+                xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+                
+                <changeSet id="%s" author="%s">
+                    <!-- Your changes here -->
+                    
+                </changeSet>
+            </databaseChangeLog>""", 
+            changesetId, author);
+        
+        return new ChangeTemplate(filename, changesetId, xmlTemplate);
+    }
+
+    private record ChangeTemplate(String filename, String changesetId, String xmlContent) {}
+}
