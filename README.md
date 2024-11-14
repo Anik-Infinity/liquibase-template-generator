@@ -86,4 +86,4 @@ MIT License - see [LICENSE.md](LICENSE.md)
 
 ## Author
 
-Your Name (@yourusername)
+Your Name (@Anik-Infinity)
