@@ -11,7 +11,7 @@ A simple CLI utility for generating Liquibase UTC timestamps and change file tem
 
 1. Download the script:
 ```bash
-curl -O https://raw.githubusercontent.com/yourusername/liquibase-helper/main/liquibase-helper
+curl -O https://raw.githubusercontent.com/yourusername/liquibase-template-generator/main/liquibase-helper
 ```
 
 2. Make it executable:
