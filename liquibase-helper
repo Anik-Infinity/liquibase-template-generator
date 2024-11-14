@@ -5,9 +5,8 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
-// Interactive CLI utility for generating Liquibase change files and UTC timestamps
 public class LiquibaseHelper {
-    // Main CLI loop handling user commands for timestamp generation and change file creation
+    public static Long seq = 1L;
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Liquibase Timestamp Helper - Type 'help' for commands or 'exit' to quit");
@@ -15,12 +14,12 @@ public class LiquibaseHelper {
         while (true) {
             System.out.print("Command> ");
             String input = scanner.nextLine().trim().toLowerCase();
-            
+
             switch (input) {
                 case "timestamp" -> {
                     String[] timestamps = generateTimestamps();
                     System.out.println("Filename timestamp: " + timestamps[0]);
-                    System.out.println("Changeset ID timestamp: " + timestamps[1]);
+                    System.out.println("Changeset ID timestamp: " + timestamps[1] + "-" + String.format("%02d", seq++));
                 }
                 case "generate" -> {
                     System.out.print("Enter change description: ");
@@ -30,7 +29,7 @@ public class LiquibaseHelper {
                     
                     var template = createChangeFileTemplate(description, author);
                     System.out.println("\nGenerated filename: " + template.filename());
-                    System.out.println("Generated changeset ID: " + template.changesetId());
+                    System.out.println("Generated changeset ID: " + template.changesetId() + "-" + String.format("%02d", seq++));
                     System.out.println("\nXML Content:");
                     System.out.println(template.xmlContent());
                 }
@@ -50,16 +49,15 @@ public class LiquibaseHelper {
         }
     }
 
-    // Generates UTC timestamps array: [0] = filename format (yyyyMMddHHmmss), [1] = changeset format (yyyy-MM-dd HH:mm:ss)
     private static String[] generateTimestamps() {
         Instant now = Instant.now();
         
         DateTimeFormatter filenameFormatter = DateTimeFormatter
-            .ofPattern("yyyyMMddHHmmss")
+            .ofPattern("yyyyMMdd'T'HHmmss")
             .withZone(ZoneOffset.UTC);
         
         DateTimeFormatter changesetFormatter = DateTimeFormatter
-            .ofPattern("yyyy-MM-dd HH:mm:ss")
+            .ofPattern("yyyyMMddHHmmss")
             .withZone(ZoneOffset.UTC);
         
         return new String[]{
@@ -68,13 +66,12 @@ public class LiquibaseHelper {
         };
     }
 
-    // Creates a Liquibase change file template with normalized filename and changeset ID from description
     private static ChangeTemplate createChangeFileTemplate(String description, String author) {
         String[] timestamps = generateTimestamps();
         String normalizedDesc = description.toLowerCase().replace(' ', '_');
         
-        String filename = String.format("V%s__%s.xml", timestamps[0], normalizedDesc);
-        String changesetId = String.format("%s_%s", timestamps[1], normalizedDesc);
+        String filename = String.format("%s_%s.xml", timestamps[0], normalizedDesc);
+        String changesetId = String.format("%s-%02d", timestamps[1], seq++);
         
         String xmlTemplate = String.format("""
             <?xml version="1.0" encoding="UTF-8"?>
@@ -94,6 +91,5 @@ public class LiquibaseHelper {
         return new ChangeTemplate(filename, changesetId, xmlTemplate);
     }
 
-    // Container for generated Liquibase change file data (filename, changeset ID, and XML content)
     private record ChangeTemplate(String filename, String changesetId, String xmlContent) {}
 }
