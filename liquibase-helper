@@ -19,7 +19,7 @@ public class LiquibaseHelper {
                 case "timestamp" -> {
                     String[] timestamps = generateTimestamps();
                     System.out.println("Filename timestamp: " + timestamps[0]);
-                    System.out.println("Changeset ID timestamp: " + timestamps[1] + "-" + String.format("%02d", seq++));
+                    System.out.println("Changeset ID timestamp: " + timestamps[1]);
                 }
                 case "generate" -> {
                     System.out.print("Enter change description: ");
@@ -29,7 +29,7 @@ public class LiquibaseHelper {
                     
                     var template = createChangeFileTemplate(description, author);
                     System.out.println("\nGenerated filename: " + template.filename());
-                    System.out.println("Generated changeset ID: " + template.changesetId() + "-" + String.format("%02d", seq++));
+                    System.out.println("Generated changeset ID: " + template.changesetId());
                     System.out.println("\nXML Content:");
                     System.out.println(template.xmlContent());
                 }
@@ -62,7 +62,7 @@ public class LiquibaseHelper {
         
         return new String[]{
             filenameFormatter.format(now),
-            changesetFormatter.format(now)
+            changesetFormatter.format(now).concat("-" +String.format("%02d", seq++))
         };
     }
 
@@ -71,7 +71,7 @@ public class LiquibaseHelper {
         String normalizedDesc = description.toLowerCase().replace(' ', '_');
         
         String filename = String.format("%s_%s.xml", timestamps[0], normalizedDesc);
-        String changesetId = String.format("%s-%02d", timestamps[1], seq++);
+        String changesetId = String.format("%s", timestamps[1]);
         
         String xmlTemplate = String.format("""
             <?xml version="1.0" encoding="UTF-8"?>
