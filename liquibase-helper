@@ -6,7 +6,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 public class LiquibaseHelper {
-    public static Long seq = 1L;
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Liquibase Timestamp Helper - Type 'help' for commands or 'exit' to quit");
@@ -62,7 +61,7 @@ public class LiquibaseHelper {
         
         return new String[]{
             filenameFormatter.format(now),
-            changesetFormatter.format(now).concat("-" +String.format("%02d", seq++))
+            changesetFormatter.format(now)
         };
     }
 
@@ -79,7 +78,7 @@ public class LiquibaseHelper {
                 xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                 xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-                http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+                https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
                 
                 <changeSet id="%s" author="%s">
                     <!-- Your changes here -->
