@@ -88,4 +88,4 @@ Feel free to open issues or submit pull requests. Any contributions are welcome!
 MIT License - see [LICENSE.md](LICENSE.md)
 
 ## Author
-Your Name (@Anik-Infinity)
+@Anik-Infinity : anik.kafi404@gmail.com
